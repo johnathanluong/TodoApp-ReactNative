@@ -1,33 +1,43 @@
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { MaterialIcons } from '@expo/vector-icons';
+import React from 'react';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { Octicons } from '@expo/vector-icons';
 
-// makes the top header
+// Top header
 export default function Header(): JSX.Element {
-    return (
-        <View style={styles.header}>
-            <View>
-                <Text style={styles.headerText}>
-                    Todo List
-                </Text>
-            </View>
-        </View>
-    );
+	return (
+		<View style={styles.header}>
+			<View>
+				<Text style={styles.headerText}>Todo List</Text>
+			</View>
+			<View style={styles.symbolContainer}>
+				<Octicons name="plus" size={24} color="black" />
+			</View>
+		</View>
+	);
 }
 
+const { width } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
-    header: {
-        width: '100%',
-        height: '100%',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    
-    headerText: {
-        fontWeight: 'bold',
-        fontSize: 20,
-        color: '#333',
-        letterSpacing: 1
-    }
+	header: {
+		width: width,
+		backgroundColor: '#f0f0f0',
+		alignItems: 'center',
+		paddingTop: 30,
+		paddingBottom: 15,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+	},
+
+	headerText: {
+		fontWeight: 'bold',
+		fontSize: 22,
+		color: '#333',
+		letterSpacing: 1,
+		paddingLeft: 15,
+	},
+
+	symbolContainer: {
+		paddingRight: 15,
+	},
 });
