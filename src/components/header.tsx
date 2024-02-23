@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
 
 // makes the top header
-export default function Header(){
+export default function Header(): JSX.Element {
     return (
         <View style={styles.header}>
             <View>

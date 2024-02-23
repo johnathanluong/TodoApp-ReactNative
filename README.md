@@ -1,1 +1,1 @@
-
+This is a simple Todo app to practice React Native, TypeScript, and Redux skills !
