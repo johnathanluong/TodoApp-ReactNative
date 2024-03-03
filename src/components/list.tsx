@@ -1,50 +1,19 @@
 import { View, SectionList, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import Task from './task';
 import { TodoItem } from '../data/types';
 import DayHeader from './dayHeader';
+import { loadJSONFromFile, saveJSONToFile } from './fileUtils';
+import * as FileSystem from 'expo-file-system';
 
 interface Props {
 	todos: TodoItem[];
+	onUpdateTodos: (updatedTodos: TodoItem[]) => void;
 }
 
 interface GroupedItems {
 	date: string;
 	data: TodoItem[];
-}
-
-export default function List({ todos }: Props): JSX.Element {
-	const [todosState, setTodosState] = useState(todos);
-
-	// Creates a new array of todos that updates the task name
-	const updateTask = (taskId: number, newTaskName: string) => {
-		const updatedTodos = todosState.map((task) =>
-			task.id === taskId ? { ...task, task_name: newTaskName } : task
-		);
-
-		setTodosState(updatedTodos);
-	};
-
-	// Renderer for task in each group
-	const renderTask = ({ item }: { item: TodoItem }) => (
-		<>
-			<Task task={item} onUpdateName={updateTask} />
-			<View style={styles.line} />
-		</>
-	);
-
-	const groupedTodo: GroupedItems[] = groupTodobyDueDate(todos);
-
-	return (
-		<View>
-			<SectionList
-				sections={groupedTodo}
-				renderItem={renderTask}
-				renderSectionHeader={renderHeader}
-				keyExtractor={(item) => item.id.toString()}
-			/>
-		</View>
-	);
 }
 
 // Renderer for the date header for each group
@@ -57,7 +26,7 @@ const renderHeader = ({ section: { date } }: { section: GroupedItems }) => (
  * @param data An array of TodoItem objects representing the todo items
  * @returns An array of GroupedItems objects representing the todo items grouped by their due date
  */
-const groupTodobyDueDate = (data: TodoItem[]): GroupedItems[] => {
+const groupTodoByDueDate = (data: TodoItem[]): GroupedItems[] => {
 	const groups: GroupedItems[] = [];
 
 	data.forEach((item: TodoItem) => {
@@ -79,6 +48,65 @@ const groupTodobyDueDate = (data: TodoItem[]): GroupedItems[] => {
 
 	return groups;
 };
+
+export default function List({ todos, onUpdateTodos }: Props): JSX.Element {
+	useEffect(() => {
+		loadInitialData();
+	}, []);
+
+	const loadInitialData = async () => {
+		try {
+			const jsonData = await loadJSONFromFile(
+				FileSystem.documentDirectory + 'data.json'
+			);
+			onUpdateTodos(jsonData.todos);
+		} catch (error) {}
+	};
+
+	const updateAndSaveData = async (updateData: TodoItem[]) => {
+		await saveJSONToFile(FileSystem.documentDirectory + 'data.json', {
+			todos: updateData,
+		});
+		onUpdateTodos(updateData);
+	};
+
+	// Creates a new array of todos that updates the task name
+	const updateTask = (taskId: number, newData: Partial<TodoItem>) => {
+		const updatedTodos = todos.map((task) =>
+			task.id === taskId ? { ...task, ...newData } : task
+		);
+
+		updateAndSaveData(updatedTodos);
+	};
+
+	const deleteTask = (taskId: number) => {
+		const updatedTodos = todos.filter((task) => task.id !== taskId);
+		updateAndSaveData(updatedTodos);
+	};
+
+	// Renderer for task in each group
+	const renderTask = ({ item }: { item: TodoItem }) => (
+		<>
+			<Task
+				task={item}
+				onUpdateTask={updateTask}
+				onDeleteTask={deleteTask}
+			/>
+			<View style={styles.line} />
+		</>
+	);
+
+	return (
+		<View>
+			<SectionList
+				sections={groupTodoByDueDate(todos)}
+				renderItem={renderTask}
+				renderSectionHeader={renderHeader}
+				keyExtractor={(item) => item.id.toString()}
+			/>
+		</View>
+	);
+}
 
 const styles = StyleSheet.create({
 	line: {

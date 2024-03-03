@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import React from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { TodoItem } from '../data/types';
 import { Octicons } from '@expo/vector-icons';
 interface Props {
 	task: TodoItem;
-	onUpdateName: (taskId: number, newName: string) => void;
+	onUpdateTask: (taskId: number, newData: Partial<TodoItem>) => void;
+	onDeleteTask: (taskId: number) => void;
 }
 
-export default function Task({ task, onUpdateName }: Props): JSX.Element {
+export default function Task({
+	task,
+	onUpdateTask,
+	onDeleteTask,
+}: Props): JSX.Element {
 	/** 
 	 * task
     @id List key: number
@@ -16,24 +21,35 @@ export default function Task({ task, onUpdateName }: Props): JSX.Element {
     @due_date Due date: string ()
     */
 
-	const [text, setText] = useState(task.task_name);
-	const [iconName, setIconName] = useState('check-circle');
-
 	const handleNameChange = (newName: string) => {
-		setText(newName);
-		onUpdateName(task.id, newName);
+		onUpdateTask(task.id, { task_name: newName });
 	};
 
 	const onPressCheck = () => {
-		setIconName('x-circle');
+		if (task.completed) {
+			onDeleteTask(task.id);
+		} else {
+			onUpdateTask(task.id, { completed: true });
+		}
 	};
 
 	return (
 		<View>
 			<View style={styles.container}>
-				<TextInput onChangeText={handleNameChange} value={text} />
+				{task.completed ? (
+					<Text style={styles.strikedText}>{task.task_name}</Text>
+				) : (
+					<TextInput
+						onChangeText={handleNameChange}
+						value={task.task_name}
+					/>
+				)}
 				<Pressable onPress={onPressCheck}>
-					<Octicons name={iconName as any} size={24} color="black" />
+					<Octicons
+						name={task.completed ? 'x-circle' : 'check-circle'}
+						size={24}
+						color="black"
+					/>
 				</Pressable>
 			</View>
 		</View>
@@ -46,5 +62,8 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		paddingHorizontal: 20,
 		paddingTop: 10,
+	},
+	strikedText: {
+		textDecorationLine: 'line-through',
 	},
 });
