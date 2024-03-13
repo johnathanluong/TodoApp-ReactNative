@@ -8,24 +8,29 @@ interface Props {
 	onDeleteTask: (taskId: number) => void;
 }
 
-export default function Task({
-	task,
-	onUpdateTask,
-	onDeleteTask,
-}: Props): JSX.Element {
+/**
+ * Renders a single todo item with a checkbox and an editable text input.
+ * @param task - The todo item object
+ * @param onUpdateTask - A function to update the task data
+ * @param onDeleteTask - A function to delete the task
+ */
+export default function Task({ task, onUpdateTask, onDeleteTask }: Props): JSX.Element {
 	/** 
-	 * task
+	 * Task
     @id List key: number
     @task_name Name of Task: string
     @completed Status of Completion: boolean
     @due_date Due date: string ()
     */
 
+	// Updates task's name to the new name passed through
 	const handleNameChange = (newName: string) => {
 		onUpdateTask(task.id, { task_name: newName });
 	};
 
-	const onPressCheck = () => {
+	// Toggles the completion status
+	// If already complete, deletes task
+	const toggleTaskCompletion = () => {
 		if (task.completed) {
 			onDeleteTask(task.id);
 		} else {
@@ -39,17 +44,10 @@ export default function Task({
 				{task.completed ? (
 					<Text style={styles.strikedText}>{task.task_name}</Text>
 				) : (
-					<TextInput
-						onChangeText={handleNameChange}
-						value={task.task_name}
-					/>
+					<TextInput onChangeText={handleNameChange} value={task.task_name} />
 				)}
-				<Pressable onPress={onPressCheck}>
-					<Octicons
-						name={task.completed ? 'x-circle' : 'check-circle'}
-						size={24}
-						color="black"
-					/>
+				<Pressable onPress={toggleTaskCompletion}>
+					<Octicons name={task.completed ? 'x-circle' : 'check-circle'} size={24} color='black' />
 				</Pressable>
 			</View>
 		</View>
@@ -61,9 +59,9 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 		flexDirection: 'row',
 		paddingHorizontal: 20,
-		paddingTop: 10,
+		paddingTop: 10
 	},
 	strikedText: {
-		textDecorationLine: 'line-through',
-	},
+		textDecorationLine: 'line-through'
+	}
 });

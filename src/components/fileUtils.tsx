@@ -1,9 +1,12 @@
 import * as FileSystem from 'expo-file-system';
 import { TodoItem } from '../data/types';
 
-export const loadJSONFromFile = async (
-	filePath: string
-): Promise<{ todos: TodoItem[] }> => {
+/**
+ * Loads the JSON from a file path
+ * @param filePath - Path to load JSON
+ * @returns TodoItem[] - todo items
+ */
+export const loadJSONFromFile = async (filePath: string): Promise<{ todos: TodoItem[] }> => {
 	try {
 		const fileContents = await FileSystem.readAsStringAsync(filePath);
 		return JSON.parse(fileContents) as { todos: TodoItem[] };
@@ -13,10 +16,12 @@ export const loadJSONFromFile = async (
 	}
 };
 
-export const saveJSONToFile = async (
-	filePath: string,
-	data: { todos: TodoItem[] }
-): Promise<void> => {
+/**
+ * Saves data to JSON
+ * @param filePath - Path to save to JSON
+ * @param data - Data to save to JSON
+ */
+export const saveJSONToFile = async (filePath: string, data: { todos: TodoItem[] }): Promise<void> => {
 	try {
 		await FileSystem.writeAsStringAsync(filePath, JSON.stringify(data));
 	} catch (error) {
